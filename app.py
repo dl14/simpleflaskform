@@ -6,3 +6,5 @@ def hello_world():
     searchword = request.form.get('searchword')
     return render_template('main.html', searchword=searchword)
 
+if __name__ == "__main__":
+    app.run()
