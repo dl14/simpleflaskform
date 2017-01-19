@@ -8,6 +8,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
 import urllib
+import mechanize
 
 def scrape_definition(searchword):
     definitions = []
@@ -24,9 +25,40 @@ def scrape_definition(searchword):
         print "Lexicon: "
         for meaning in soupGL.find_all("div", class_="meaning"):
             definitions.append(meaning.text)
+
+        base_url = "http://www.shabdkosh.com/gu/translate?e="
+        new_url = base_url+searchword+"&l=gu"
+
+        htmlSK = urllib.urlopen(new_url.encode('utf-8')).read()
+        soupSK = BeautifulSoup(htmlSK, "html.parser")
+        definitions.append("Shabdakosh:")
+        print "Shabdakosh: "
+        for meaning in soupSK.find_all("a", class_="l"):
+            u_meaning = meaning.encode('unicode-escape')
+            if "\u" in u_meaning:
+                break
+            definitions.append(meaning.text)
+
+        '''
+        base_url = "http://translate.google.com/#auto/en/"
+        new_url = base_url+searchword
+
+        browser = mechanize.Browser()
+        browser.set_handle_robots(False)
+        browser.addheaders = [('user-agent', 'Chrome')]
+
+        htmlT = browser.open(new_url.encode('utf-8')).read()
+        print htmlT
+        soupT = BeautifulSoup(htmlT, "html.parser")
+
+        definitions.append("Google Translate:")
+        print "Google Translate: "
+        for meaning in soupT.find_all("div", class_="gt-baf-cell"):
+            print meaning
             #f.write(meaning.text)
             #print meaning.text
-
+            definitions.append(meaning.text)
+        '''
     return definitions
     '''
         print "INSIDE GLEXI"
