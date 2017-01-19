@@ -7,16 +7,37 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
+import urllib
 
 def scrape_definition(searchword):
+    definitions = []
     if not searchword:
         print "empty search word"
     else:
-        f = open('def.txt', 'w')
+        #f = open('def.txt', 'w')
+        base_url = "http://www.gujaratilexicon.com/dictionary/gujarati-to-english/"
+        new_url = base_url+searchword
+
+        htmlGL = urllib.urlopen(new_url.encode('utf-8')).read()
+        soupGL = BeautifulSoup(htmlGL, "html.parser")
+        definitions.append("Lexicon:")
+        print "Lexicon: "
+        for meaning in soupGL.find_all("div", class_="meaning"):
+            definitions.append(meaning.text)
+            #f.write(meaning.text)
+            #print meaning.text
+
+    return definitions
+    '''
         print "INSIDE GLEXI"
         driver = webdriver.Firefox(executable_path='/usr/local/bin/geckodriver')
         driver.implicitly_wait(30)
         base_url = "http://www.gujaratilexicon.com/"
+        base_url2 = "http://www.gujaratilexicon.com/dictionary/gujarati-to-english/"
+        new_url = base_url2+searchword
+        print new_url
+        content = urllib.urlopen(new_url.encode('utf-8')).read()
+
         verificationErrors = []
         accept_next_alert = True
 
@@ -31,10 +52,12 @@ def scrape_definition(searchword):
 
         htmlGL = driver.page_source
         soupGL = BeautifulSoup(htmlGL, "html.parser")
+        definitions.append("Lexicon:")
         print "Lexicon: "
         for meaning in soupGL.find_all("div", class_="meaning"):
-            f.write(meaning.text)
-            print meaning.text
+            definitions.append(meaning.text)
+            #f.write(meaning.text)
+            #print meaning.text
 
         driver.get("http://www.shabdkosh.com/gu/")
         driver.find_element_by_id("e").clear()
@@ -46,12 +69,14 @@ def scrape_definition(searchword):
         htmlSK = driver.page_source
         soupSK = BeautifulSoup(htmlSK, "html.parser")
 
+        definitions.append("Shabdakosh:")
         print "Shabdakosh: "
         for meaning in soupSK.find_all("a", class_="l"):
             if "%" in meaning.get('href'):
                 break
-            f.write(meaning.text)
-            print meaning.text
+            #f.write(meaning.text)
+            #print meaning.text
+            definitions.append(meaning.text)
 
         driver.get("https://www.translate.com/")
         driver.find_element_by_id("detect_button").click()
@@ -66,26 +91,16 @@ def scrape_definition(searchword):
         htmlT = driver.page_source
         soupT = BeautifulSoup(htmlT, "html.parser")
 
+        definitions.append("Google Translate:")
         print "Google Translate: "
         for meaning in soupT.find_all("div", {"id": "translation_text"}):
-            f.write(meaning.text)
-            print meaning.text
+            #f.write(meaning.text)
+            #print meaning.text
+            definitions.append(meaning.text)
 
-        f.close()
-        '''
-       driver.get("http://www.bhagvadgomandal.com/")
-       driver.find_element_by_id("TypePad").clear()
-       driver.find_element_by_id("TypePad").send_keys(searchWord)
-       driver.find_element_by_xpath("//div[@id='conatiner']/div[3]/div/form/table/tbody/tr/td/table/tbody/tr/td[3]/a/img").click()
-
-       time.sleep(2)
-
-       htmlBG = driver.page_source
-       soupBG = BeautifulSoup(htmlBG, "html.parser")
-
-       for meaning in soupBG.find_all("a", class_="l"):
-           print meaning.text
-       '''
-
+    return definitions
+        #print definitions
+        #f.close()
     #if __name__ == "__main__":
         #scrape_definition(u"દેવ")
+    '''
