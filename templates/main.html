@@ -12,6 +12,11 @@
         <input type="submit" value="Submit">
     </form>
 
-    Searchword: {{ searchword }}
+    Searchword: {{ searchword }} <br/>
+    Defintions: <br/>
+    {% for def in def_arr %}
+    {{def}} <br/>
+    {% endfor %}
+
 </body>
 </html>
